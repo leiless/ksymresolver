@@ -1,0 +1,7 @@
+.DS_Store
+*.swp
+*.o
+*.plist~
+*.dSYM/
+*.kext/
+
