@@ -215,8 +215,7 @@ kern_return_t ksymresolver_stop(kmod_info_t *ki __unused, void *d __unused)
     return KERN_SUCCESS;
 }
 
-
-#ifdef __makefile__
+#ifdef __kext_makefile__
 extern kern_return_t _start(kmod_info_t *, void *);
 extern kern_return_t _stop(kmod_info_t *, void *);
 
@@ -227,7 +226,6 @@ extern kern_return_t _stop(kmod_info_t *, void *);
 
 KMOD_EXPLICIT_DECL2(BUNDLEID, KEXTBUILD_S, _start, _stop)
 
-/* If you intended to write a kext library  NULLify _realmain and _antimain */
 __private_extern__ kmod_start_func_t *_realmain = ksymresolver_start;
 __private_extern__ kmod_stop_func_t *_antimain = ksymresolver_stop;
 

@@ -57,7 +57,7 @@ endif
 #
 # Standard defines and includes for kernel extensions
 #
-# The __makefile__ macro used to compatible with XCode
+# The __kext_makefile__ macro used to compatible with XCode
 # Since XCode use intermediate objects  which causes symbol duplicated
 #
 CPPFLAGS+=	-DKERNEL \
@@ -68,7 +68,7 @@ CPPFLAGS+=	-DKERNEL \
 		$(SDKFLAGS) \
 		-I/System/Library/Frameworks/Kernel.framework/Headers \
 		-I/System/Library/Frameworks/Kernel.framework/PrivateHeaders \
-		-D__makefile__
+		-D__kext_makefile__
 
 #
 # Convenience defines
