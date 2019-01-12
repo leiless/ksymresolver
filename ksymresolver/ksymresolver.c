@@ -24,7 +24,7 @@ static int *hz;
  * @return      0 if failed to get
  * see: xnu/osfmk/vm/vm_kern.c#vm_kernel_addrperm_external
  */
-vm_offset_t get_vm_kernel_addrperm_ext(void)
+static vm_offset_t get_vm_kernel_addrperm_ext(void)
 {
     static vm_offset_t addrperm_ext = 0L;
     if (addrperm_ext != 0L) goto out_exit;
@@ -39,7 +39,7 @@ out_exit:
  * @return      0 if failed to get
  * see: xnu/osfmk/vm/vm_kern.c#vm_kernel_unslide_or_perm_external
  */
-vm_offset_t get_vm_kernel_slide(void)
+static vm_offset_t get_vm_kernel_slide(void)
 {
     static uint16_t i = 4096;
     static vm_offset_t fake = VM_MIN_KERNEL_AND_KEXT_ADDRESS;
