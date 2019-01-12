@@ -189,7 +189,7 @@ void *resolve_ksymbol(const char * __nonnull name)
     static struct mach_header_64 *mh = NULL;
 
     if (mh == NULL) {
-        mh = (struct mach_header_64 *) KERN_TEXT_BASE + get_vm_kernel_slide();
+        mh = (struct mach_header_64 *) (KERN_TEXT_BASE + get_vm_kernel_slide());
     }
 
     return resolve_ksymbol2(mh, name);
