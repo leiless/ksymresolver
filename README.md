@@ -1,6 +1,21 @@
 ### *ksymresolver* - XNU kernel symbol resolver(kernel extension)
 
---
+A generic kernel extension used to resolve not-exported kernel symbols, primary target on macOS >= 10.11
+
+Also it can be used as a sole kext dependency for resolving dependencies.
+
+---
+
+#### Prototype
+
+```c
+/**
+ * Resolve a kernel symbol address
+ * @param name          symbol name(must begin with _)
+ * @return              NULL if not found
+ */
+void *resolve_ksymbol(const char * __nonnull name);
+```
 
 #### Compile:
 
@@ -13,7 +28,7 @@ $ MACOSX_VERSION_MIN=10.11 make
 ```
 $ sudo cp -r ksymresolver.kext /tmp
 
-$ sudo kextload /tmp/ksymresolver.kext
+$ sudo kextload -v /tmp/ksymresolver.kext
 # The kext will failure intentionally so you won't need to kextunload
 /tmp/ksymresolver.kext failed to load - (libkern/kext) kext (kmod) start/stop routine failed; check the system/kernel logs for errors or try kextutil(8).
 ```
@@ -49,7 +64,7 @@ Kext cn.junkman.kext.ksymresolver failed to load (0xdc008017).
 Failed to load kext cn.junkman.kext.ksymresolver (error 0xdc008017).
 ```
 
---
+---
 
 ### *References*
 [Resolving kernel symbols](http://ho.ax/posts/2012/02/resolving-kernel-symbols/)

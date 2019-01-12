@@ -106,7 +106,7 @@ static struct load_command *find_lc(
  * keywords: kernel_nlist_t  struct nlist_64
  * see: xnu/libkern/c++/OSKext.cpp#slidePrelinkedExecutable
  */
-static void *find_symbol(struct mach_header_64 *mh, const char *name)
+static void *resolve_ksymbol2(struct mach_header_64 *mh, const char *name)
 {
     struct segment_command_64 *linkedit;
     vm_address_t linkedit_base;
@@ -137,13 +137,15 @@ static void *find_symbol(struct mach_header_64 *mh, const char *name)
     }
 
     if (symtab->nsyms == 0 || symtab->strsize == 0) {
-        LOG("SYMTAB symbol size invalid");
+        LOG("SYMTAB symbol size invalid  nsyms: %u strsize: %u",
+                symtab->nsyms, symtab->strsize);
         goto out_done;
     }
 
     if (linkedit->fileoff > symtab->stroff ||
             linkedit->fileoff > symtab->symoff) {
-        LOG("LINKEDIT fileoff out of range");
+        LOG("LINKEDIT fileoff(%#llx) out of range  stroff: %u symoff: %u",
+                linkedit->fileoff, symtab->stroff, symtab->symoff);
         goto out_done;
     }
 
@@ -162,6 +164,22 @@ static void *find_symbol(struct mach_header_64 *mh, const char *name)
 
 out_done:
     return addr;
+}
+
+/**
+ * Resolve a kernel symbol address
+ * @param name          symbol name(must begin with _)
+ * @return              NULL if not found
+ */
+void *resolve_ksymbol(const char * __nonnull name)
+{
+    static struct mach_header_64 *mh = NULL;
+
+    if (mh == NULL) {
+        mh = (struct mach_header_64 *) KERN_TEXT_BASE + get_vm_kernel_slide();
+    }
+
+    return resolve_ksymbol2(mh, name);
 }
 
 kern_return_t ksymresolver_start(kmod_info_t *ki __unused, void *d __unused)
@@ -188,7 +206,7 @@ kern_return_t ksymresolver_start(kmod_info_t *ki __unused, void *d __unused)
     LOG("flags:                  %#010x\n", mh->flags);
     LOG("reserved:               %#010x\n", mh->reserved);
 
-    bsd_hostname = find_symbol(mh, "_bsd_hostname");
+    bsd_hostname = resolve_ksymbol2(mh, "_bsd_hostname");
     LOG("bsd_hostname(): %#018lx\n", (vm_address_t) bsd_hostname);
     if (bsd_hostname) {
         char buf[64];
@@ -201,7 +219,7 @@ kern_return_t ksymresolver_start(kmod_info_t *ki __unused, void *d __unused)
         }
     }
 
-    hz = find_symbol(mh, "_hz");
+    hz = resolve_ksymbol2(mh, "_hz");
     LOG("hz: %#018lx\n", (vm_address_t) hz);
     if (hz) LOG("hz: %d", *hz);
 
