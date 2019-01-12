@@ -169,11 +169,11 @@ kern_return_t ksymresolver_start(kmod_info_t *ki __unused, void *d __unused)
     vm_offset_t vm_kernel_addrperm_ext1 = get_vm_kernel_addrperm_ext();
     LOG("vm_kernel_addrperm_ext: %#018lx\n", vm_kernel_addrperm_ext1);
 
-    vm_offset_t vm_kernel_slide1 = get_vm_kernel_slide();
-    LOG("vm_kernel_slide:        %#018lx\n", vm_kernel_slide1);
+    vm_offset_t vm_kern_slide = get_vm_kernel_slide();
+    LOG("vm_kernel_slide:        %#018lx\n", vm_kern_slide);
 
-    vm_address_t hib_base = KERN_HIB_BASE + vm_kernel_slide1;
-    vm_address_t kern_base = KERN_TEXT_BASE + vm_kernel_slide1;
+    vm_address_t hib_base = KERN_HIB_BASE + vm_kern_slide;
+    vm_address_t kern_base = KERN_TEXT_BASE + vm_kern_slide;
 
     LOG("HIB text base:          %#018lx\n", hib_base);
     LOG("kernel text base:       %#018lx\n", kern_base);
