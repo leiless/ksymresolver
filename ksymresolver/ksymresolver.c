@@ -13,15 +13,21 @@
 #define KERN_HIB_BASE   ((vm_offset_t) 0xffffff8000100000ULL)
 #define KERN_TEXT_BASE  ((vm_offset_t) 0xffffff8000200000ULL)
 
-#ifndef KEXTNAME_S
+#ifndef __kext_makefile__
 #define KEXTNAME_S      "ksymresolver"
+#define KEXTVERSION_S   "0000.00.01"
+#define KEXTBUILD_S     "0"
+#define BUNDLEID_S      "cn.junkman.kext." KEXTNAME_S
+#define __TZ__          "+0800"
 #endif
 
-#define LOG(fmt, ...) printf(KEXTNAME_S ": " fmt "\n", ##__VA_ARGS__)
-
-/* Exported: xnu/bsd/sys/systm.h#bsd_hostname */
-static int (*bsd_hostname)(char *, int, int *);
-static int *hz;
+#define LOG(fmt, ...)       printf(KEXTNAME_S ": " fmt "\n", ##__VA_ARGS__)
+#define LOG_ERR(fmt, ...)   LOG("[ERR] " fmt, ##__VA_ARGS__)
+#ifndef DEBUG
+#define LOG_DBG(fmt, ...)   LOG("[DBG] " fmt, ##__VA_ARGS__)
+#else
+#define LOG_DBG(fmt, ...)   (void) (0, ##__VA_ARGS__)
+#endif
 
 /**
  * Get value of global variable vm_kernel_addrperm_ext(since 10.11)
@@ -121,34 +127,34 @@ static void *resolve_ksymbol2(struct mach_header_64 *mh, const char *name)
     char *str;
     void *addr = NULL;
 
-    if (mh->magic != MH_MAGIC_64 || mh->filetype != MH_EXECUTE) {
-        LOG("mach header illegal - mh: %p mag: %#010x type: %#010x",
-                mh, mh->magic, mh->filetype);
+    if ((mh->magic != MH_MAGIC_64 && mh->magic != MH_CIGAM_64) || mh->filetype != MH_EXECUTE) {
+        LOG_ERR("bad mach header  mh: %p mag: %#010x type: %#010x",
+                    mh, mh->magic, mh->filetype);
         goto out_done;
     }
 
     linkedit = find_seg64(mh, SEG_LINKEDIT);
-    if (!linkedit) {
-        LOG("cannot find LINKEDIT seg  mh: %p", mh);
+    if (linkedit == NULL) {
+        LOG_ERR("cannot find SEG_LINKEDIT  mh: %p", mh);
         goto out_done;
     }
     linkedit_base = linkedit->vmaddr - linkedit->fileoff;
 
     symtab = (struct symtab_command *) find_lc(mh, LC_SYMTAB);
-    if (!symtab) {
-        LOG("cannot find SYMTAB cmd  mh: %p", mh);
+    if (symtab == NULL) {
+        LOG_ERR("cannot find LC_SYMTAB  mh: %p", mh);
         goto out_done;
     }
 
     if (symtab->nsyms == 0 || symtab->strsize == 0) {
-        LOG("SYMTAB symbol size invalid  nsyms: %u strsize: %u",
+        LOG_ERR("SYMTAB symbol size invalid  nsyms: %u strsize: %u",
                 symtab->nsyms, symtab->strsize);
         goto out_done;
     }
 
     if (linkedit->fileoff > symtab->stroff ||
             linkedit->fileoff > symtab->symoff) {
-        LOG("LINKEDIT fileoff(%#llx) out of range  stroff: %u symoff: %u",
+        LOG_ERR("LINKEDIT fileoff(%#llx) out of range  stroff: %u symoff: %u",
                 linkedit->fileoff, symtab->stroff, symtab->symoff);
         goto out_done;
     }
@@ -188,52 +194,44 @@ void *resolve_ksymbol(const char * __nonnull name)
 
 kern_return_t ksymresolver_start(kmod_info_t *ki __unused, void *d __unused)
 {
-    vm_offset_t vm_kernel_addrperm_ext1 = get_vm_kernel_addrperm_ext();
-    LOG("vm_kernel_addrperm_ext: %#018lx\n", vm_kernel_addrperm_ext1);
+    vm_offset_t vm_kern_ap_ext;
+    vm_offset_t vm_kern_slide;
+    vm_address_t hib_base;
+    vm_address_t kern_base;
+    struct mach_header_64 *mh;
 
-    vm_offset_t vm_kern_slide = get_vm_kernel_slide();
-    LOG("vm_kernel_slide:        %#018lx\n", vm_kern_slide);
+    LOG("loaded  (version: %s build: %s ts: %s %s%s uuid: %s)",
+        KEXTVERSION_S, KEXTBUILD_S, __DATE__, __TIME__, __TZ__, "");
 
-    vm_address_t hib_base = KERN_HIB_BASE + vm_kern_slide;
-    vm_address_t kern_base = KERN_TEXT_BASE + vm_kern_slide;
+    vm_kern_ap_ext = get_vm_kernel_addrperm_ext();
+    LOG_DBG("vm_kernel_addrperm_ext: %#018lx\n", vm_kern_ap_ext);
 
-    LOG("HIB text base:          %#018lx\n", hib_base);
-    LOG("kernel text base:       %#018lx\n", kern_base);
+    vm_kern_slide = get_vm_kernel_slide();
+    LOG_DBG("vm_kernel_slide:        %#018lx\n", vm_kern_slide);
 
-    struct mach_header_64 *mh = (struct mach_header_64 *) kern_base;
-    LOG("magic:                  %#010x\n", mh->magic);
-    LOG("cputype:                %#010x\n", mh->cputype);
-    LOG("cpusubtype:             %#010x\n", mh->cpusubtype);
-    LOG("filetype:               %#010x\n", mh->filetype);
-    LOG("ncmds:                  %#010x\n", mh->ncmds);
-    LOG("sizeofcmds:             %#010x\n", mh->sizeofcmds);
-    LOG("flags:                  %#010x\n", mh->flags);
-    LOG("reserved:               %#010x\n", mh->reserved);
+    hib_base = KERN_HIB_BASE + vm_kern_slide;
+    kern_base = KERN_TEXT_BASE + vm_kern_slide;
 
-    bsd_hostname = resolve_ksymbol2(mh, "_bsd_hostname");
-    LOG("bsd_hostname(): %#018lx\n", (vm_address_t) bsd_hostname);
-    if (bsd_hostname) {
-        char buf[64];
-        int outlen;
-        int e = bsd_hostname(buf, sizeof(buf), &outlen);
-        if (e == 0) {
-            LOG("hostname: %s len: %d\n", buf, outlen);
-        } else {
-            LOG("bsd_hostname() failed  errno: %d\n", e);
-        }
-    }
+    LOG_DBG("HIB text base:          %#018lx\n", hib_base);
+    LOG_DBG("kernel text base:       %#018lx\n", kern_base);
 
-    hz = resolve_ksymbol2(mh, "_hz");
-    LOG("hz: %#018lx\n", (vm_address_t) hz);
-    if (hz) LOG("hz: %d", *hz);
+    mh = (struct mach_header_64 *) kern_base;
+    LOG_DBG("magic:                  %#010x\n", mh->magic);
+    LOG_DBG("cputype:                %#010x\n", mh->cputype);
+    LOG_DBG("cpusubtype:             %#010x\n", mh->cpusubtype);
+    LOG_DBG("filetype:               %#010x\n", mh->filetype);
+    LOG_DBG("ncmds:                  %#010x\n", mh->ncmds);
+    LOG_DBG("sizeofcmds:             %#010x\n", mh->sizeofcmds);
+    LOG_DBG("flags:                  %#010x\n", mh->flags);
+    LOG_DBG("reserved:               %#010x\n", mh->reserved);
 
-    LOG("");    /* Add a separator  we fail so you don't need to kextunload */
-    return KERN_FAILURE;
+    return KERN_SUCCESS;
 }
 
 kern_return_t ksymresolver_stop(kmod_info_t *ki __unused, void *d __unused)
 {
-    LOG("unloaded");
+    LOG("unloaded  (version: %s build: %s ts: %s %s%s uuid: %s)",
+        KEXTVERSION_S, KEXTBUILD_S, __DATE__, __TIME__, __TZ__, "");
     return KERN_SUCCESS;
 }
 
