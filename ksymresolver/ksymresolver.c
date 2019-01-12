@@ -5,6 +5,7 @@
 #include <mach-o/nlist.h>
 #include <libkern/libkern.h>
 #include <vm/vm_kern.h>
+#include "ksymresolver.h"
 
 /* Exported: xnu/osfmk/mach/i386/vm_param.h */
 #define VM_MIN_KERNEL_ADDRESS           ((vm_offset_t) 0xffffff8000000000UL)
