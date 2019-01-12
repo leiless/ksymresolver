@@ -44,6 +44,8 @@ out_exit:
     return addrperm_ext;
 }
 
+#define MAX_SLIDE_STEP      4096
+
 /**
  * Get value of global variable vm_kernel_slide(since 10.11)
  * @return      0 if failed to get
@@ -51,12 +53,12 @@ out_exit:
  */
 static vm_offset_t get_vm_kernel_slide(void)
 {
-    static uint16_t i = 4096;
+    static uint16_t i = MAX_SLIDE_STEP;
     static vm_offset_t fake = VM_MIN_KERNEL_AND_KEXT_ADDRESS;
     static vm_offset_t slide = 0L;
 
     if (get_vm_kernel_addrperm_ext() == 0L) goto out_exit;
-    if (i == 0 || slide != 0L) goto out_exit;
+    if (slide != 0L || i == 0) goto out_exit;
 
     while (--i) {
         vm_kernel_unslide_or_perm_external(fake, &slide);
