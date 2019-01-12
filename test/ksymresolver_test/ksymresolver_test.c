@@ -17,8 +17,11 @@ static int *hz;
 
 kern_return_t ksymresolver_test_start(kmod_info_t *ki __unused, void *d __unused)
 {
-    LOG("loading...");
+    return KERN_SUCCESS;
+}
 
+kern_return_t ksymresolver_test_stop(kmod_info_t *ki __unused, void *d __unused)
+{
     bsd_hostname = resolve_ksymbol("_bsd_hostname");
     LOG("bsd_hostname addr: %#018lx\n", (vm_address_t) bsd_hostname);
     if (bsd_hostname) {
@@ -36,12 +39,8 @@ kern_return_t ksymresolver_test_start(kmod_info_t *ki __unused, void *d __unused
     LOG("hz addr: %#018lx\n", (vm_address_t) hz);
     if (hz) LOG("hz: %d", *hz);
 
-    return KERN_FAILURE;    /* We fail so you don't need to kextunload */
-}
+    LOG("unloaded");
 
-kern_return_t ksymresolver_test_stop(kmod_info_t *ki __unused, void *d __unused)
-{
-    LOG("unloading...");
     return KERN_SUCCESS;
 }
 
