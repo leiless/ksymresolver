@@ -4,4 +4,7 @@
 *.plist~
 *.dSYM/
 *.kext/
+*.xcodeproj/
+*.plist
+DerivedData/
 

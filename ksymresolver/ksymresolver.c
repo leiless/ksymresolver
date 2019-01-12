@@ -13,6 +13,10 @@
 #define KERN_HIB_BASE   ((vm_offset_t) 0xffffff8000100000ULL)
 #define KERN_TEXT_BASE  ((vm_offset_t) 0xffffff8000200000ULL)
 
+#ifndef KEXTNAME_S
+#define KEXTNAME_S      "ksymresolver"
+#endif
+
 #define LOG(fmt, ...) printf(KEXTNAME_S ": " fmt "\n", ##__VA_ARGS__)
 
 /* Exported: xnu/bsd/sys/systm.h#bsd_hostname */
