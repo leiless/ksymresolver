@@ -16,6 +16,8 @@
 	<string>__KEXTNAME__</string>
 	<key>CFBundlePackageType</key>
 	<string>KEXT</string>
+	<key>OSBundleCompatibleVersion</key>
+	<string>__KEXTCOMPATVER__</string>
 	<key>CFBundleVersion</key>
 	<string>__KEXTVERSION__</string>
 	<key>CFBundleShortVersionString</key>

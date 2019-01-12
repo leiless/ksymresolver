@@ -15,6 +15,10 @@ ifndef KEXTVERSION
 $(error KEXTVERSION not defined)
 endif
 
+ifndef KEXTCOMPATVER
+KEXTCOMPATVER:=	$(KEXTVERSION)
+endif
+
 ifndef KEXTBUILD
 # [assume] zero indicates no build number
 KEXTBUILD:=	0
@@ -137,6 +141,7 @@ Info.plist~: Info.plist.in
 	sed \
 		-e 's/__KEXTNAME__/$(KEXTNAME)/g' \
 		-e 's/__KEXTMACHO__/$(KEXTNAME)/g' \
+		-e 's/__KEXTCOMPATVER__/$(KEXTCOMPATVER)/g' \
 		-e 's/__KEXTVERSION__/$(KEXTVERSION)/g' \
 		-e 's/__KEXTBUILD__/$(KEXTBUILD)/g' \
 		-e 's/__BUNDLEID__/$(BUNDLEID)/g' \
