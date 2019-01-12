@@ -24,7 +24,7 @@
 
 #define LOG(fmt, ...)       printf(KEXTNAME_S ": " fmt "\n", ##__VA_ARGS__)
 #define LOG_ERR(fmt, ...)   LOG("[ERR] " fmt, ##__VA_ARGS__)
-#ifndef DEBUG
+#ifdef DEBUG
 #define LOG_DBG(fmt, ...)   LOG("[DBG] " fmt, ##__VA_ARGS__)
 #else
 #define LOG_DBG(fmt, ...)   (void) (0, ##__VA_ARGS__)
