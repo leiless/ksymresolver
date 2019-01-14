@@ -17,23 +17,26 @@ Also it can be used as a sole kext dependency for resolving dependencies.
 void *resolve_ksymbol(const char * __nonnull name);
 ```
 
-#### Compile:
+Tips: you should resolve all kernel symbols you need at kext load stage, and fail load if any symbol cannot be resolved.
+
+#### Compile
 
 ```
 $ MACOSX_VERSION_MIN=10.11 make
 ```
 
-#### Load:
+#### Load & test
 
 ```
 $ sudo cp -r ksymresolver.kext /tmp
+$ sudo cp -r test/ksymresolver_test.kext /tmp
 
 $ sudo kextload -v /tmp/ksymresolver.kext
-# The kext will failure intentionally so you won't need to kextunload
-/tmp/ksymresolver.kext failed to load - (libkern/kext) kext (kmod) start/stop routine failed; check the system/kernel logs for errors or try kextutil(8).
+# Actually you don't have to load ksymresolver.kext first  since dependencies will load automatically
+$ sudo kextload -v -r . /tmp/ksymresolver_test.kext
 ```
 
-#### Sample output:
+#### Sample output
 
 ```
 $ sw_vers
