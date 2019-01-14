@@ -14,7 +14,7 @@
 
 /* Exported: xnu/osfmk/mach/i386/vm_param.h */
 #ifndef VM_MIN_KERNEL_ADDRESS
-#define VM_MIN_KERNEL_ADDRESS           ((vm_offset_t) 0xffffff8000000000UL)
+#define VM_MIN_KERNEL_ADDRESS           ((vm_offset_t) 0xffffff8000000000ULL)
 #endif
 #ifndef VM_MIN_KERNEL_AND_KEXT_ADDRESS
 #define VM_MIN_KERNEL_AND_KEXT_ADDRESS  (VM_MIN_KERNEL_ADDRESS - 0x80000000ULL)
