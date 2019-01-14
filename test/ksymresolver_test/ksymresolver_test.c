@@ -11,9 +11,11 @@
 
 #define LOG(fmt, ...) printf(KEXTNAME_S ": " fmt "\n", ##__VA_ARGS__)
 
+static int *hz;
+static int *tick;
+static time_t (*boottime_sec)(void);
 /* Exported: xnu/bsd/sys/systm.h#bsd_hostname */
 static int (*bsd_hostname)(char *, int, int *);
-static int *hz;
 
 kern_return_t ksymresolver_test_start(kmod_info_t *ki __unused, void *d __unused)
 {
@@ -22,6 +24,20 @@ kern_return_t ksymresolver_test_start(kmod_info_t *ki __unused, void *d __unused
 
 kern_return_t ksymresolver_test_stop(kmod_info_t *ki __unused, void *d __unused)
 {
+    hz = resolve_ksymbol("_hz");
+    LOG("hz addr: %#018lx\n", (vm_address_t) hz);
+    if (hz) LOG("hz: %d", *hz);
+
+    tick = resolve_ksymbol("_tick");
+    LOG("tick addr: %#018lx\n", (vm_address_t) tick);
+    if (tick) LOG("tick: %d", *tick);
+
+    boottime_sec = resolve_ksymbol("_boottime_sec");
+    LOG("boottime_sec addr: %#018lx", (vm_address_t) boottime_sec);
+    if (boottime_sec) {
+        LOG("boottime_sec: %ld", boottime_sec());
+    }
+
     bsd_hostname = resolve_ksymbol("_bsd_hostname");
     LOG("bsd_hostname addr: %#018lx\n", (vm_address_t) bsd_hostname);
     if (bsd_hostname) {
@@ -35,9 +51,7 @@ kern_return_t ksymresolver_test_stop(kmod_info_t *ki __unused, void *d __unused)
         }
     }
 
-    hz = resolve_ksymbol("_hz");
-    LOG("hz addr: %#018lx\n", (vm_address_t) hz);
-    if (hz) LOG("hz: %d", *hz);
+
 
     LOG("unloaded");
 
