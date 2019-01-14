@@ -19,11 +19,6 @@ static int (*bsd_hostname)(char *, int, int *);
 
 kern_return_t ksymresolver_test_start(kmod_info_t *ki __unused, void *d __unused)
 {
-    return KERN_SUCCESS;
-}
-
-kern_return_t ksymresolver_test_stop(kmod_info_t *ki __unused, void *d __unused)
-{
     hz = resolve_ksymbol("_hz");
     LOG("hz addr: %#018lx\n", (vm_address_t) hz);
     if (hz) LOG("hz: %d", *hz);
@@ -51,10 +46,12 @@ kern_return_t ksymresolver_test_stop(kmod_info_t *ki __unused, void *d __unused)
         }
     }
 
+    LOG("loaded");
+    return KERN_SUCCESS;
+}
 
-
-    LOG("unloaded");
-
+kern_return_t ksymresolver_test_stop(kmod_info_t *ki __unused, void *d __unused)
+{
     return KERN_SUCCESS;
 }
 

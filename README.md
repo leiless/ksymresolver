@@ -41,27 +41,46 @@ ProductName:	Mac OS X
 ProductVersion:	10.12.6
 BuildVersion:	16G29
 
+$ sudo kextload -v ksymresolver.kext
+$ sudo kextload -v -r . ksymresolver_test.kext
+
 $ sudo dmesg | grep ksymresolver
-ksymresolver: vm_kernel_addrperm_ext: 0x4362a6cb093bc3d9
-ksymresolver: vm_kernel_slide:        0x000000001d400000
-ksymresolver: HIB text base:          0xffffff801d500000
-ksymresolver: kernel text base:       0xffffff801d600000
-ksymresolver: magic:                  0xfeedfacf
-ksymresolver: cputype:                0x01000007
-ksymresolver: cpusubtype:             0x00000003
-ksymresolver: filetype:               0x00000002
-ksymresolver: ncmds:                  0x00000018
-ksymresolver: sizeofcmds:             0x00001300
-ksymresolver: flags:                  0x00200001
-ksymresolver: reserved:               0000000000
-ksymresolver: bsd_hostname(): 0xffffff801ddee930
-ksymresolver: hostname: test.local len: 10
-ksymresolver: hz: 0xffffff801e05b5cc
-ksymresolver: hz: 100
-ksymresolver: 
-Kext cn.junkman.kext.ksymresolver start failed (result 0x5).
-Kext cn.junkman.kext.ksymresolver failed to load (0xdc008017).
-Failed to load kext cn.junkman.kext.ksymresolver (error 0xdc008017).
+
+ TODO
+```
+
+```
+$ sw_vers
+ProductName:	Mac OS X
+ProductVersion:	10.13.6
+BuildVersion:	17G65
+
+$ sudo kextload -v ksymresolver.kext
+$ sudo kextload -v -r . ksymresolver_test.kext
+
+$ sudo dmesg | grep ksymresolver
+ksymresolver: [DBG] vm_kernel_addrperm_ext: 0xdf8f8245c7d79a83
+ksymresolver: [DBG] vm_kernel_slide:        0x0000000012a00000
+ksymresolver: [DBG] HIB text base:          0xffffff8012b00000
+ksymresolver: [DBG] kernel text base:       0xffffff8012c00000
+ksymresolver: [DBG] magic:                  0xfeedfacf
+ksymresolver: [DBG] cputype:                0x01000007
+ksymresolver: [DBG] cpusubtype:             0x00000003
+ksymresolver: [DBG] filetype:               0x00000002
+ksymresolver: [DBG] ncmds:                  0x00000017
+ksymresolver: [DBG] sizeofcmds:             0x00001308
+ksymresolver: [DBG] flags:                  0x00200001
+ksymresolver: [DBG] reserved:               0000000000
+ksymresolver: loaded
+ksymresolver_test: hz addr: 0xffffff8013a966f8
+ksymresolver_test: hz: 100
+ksymresolver_test: tick addr: 0xffffff8013a966fc
+ksymresolver_test: tick: 10000
+ksymresolver_test: boottime_sec addr: 0xffffff801355f0c0
+ksymresolver_test: boottime_sec: 1547476278
+ksymresolver_test: bsd_hostname addr: 0xffffff80137381d0
+ksymresolver_test: hostname: lynnls-Mac.local len: 16
+ksymresolver_test: loaded
 ```
 
 ---

@@ -20,12 +20,11 @@
  */
 #define LOG(fmt, ...)        printf(KEXTNAME_S ": " fmt "\n", ##__VA_ARGS__)
 
-#define LOG_INF(fmt, ...)    LOG("INF " fmt, ##__VA_ARGS__)
-#define LOG_ERR(fmt, ...)    LOG("ERR " fmt, ##__VA_ARGS__)
-#define LOG_BUG(fmt, ...)    LOG("BUG " fmt, ##__VA_ARGS__)
+#define LOG_ERR(fmt, ...)    LOG("[ERR] " fmt, ##__VA_ARGS__)
+#define LOG_BUG(fmt, ...)    LOG("[BUG] " fmt, ##__VA_ARGS__)
 #define LOG_OFF(fmt, ...)    (void) (0, ##__VA_ARGS__)
 #ifdef DEBUG
-#define LOG_DBG(fmt, ...)    LOG("DBG " fmt, ##__VA_ARGS__)
+#define LOG_DBG(fmt, ...)    LOG("[DBG] " fmt, ##__VA_ARGS__)
 #else
 #define LOG_DBG(fmt, ...)    LOG_OFF(fmt, ##__VA_ARGS__)
 #endif

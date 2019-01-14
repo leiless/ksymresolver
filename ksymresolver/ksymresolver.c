@@ -156,6 +156,7 @@ static void *resolve_ksymbol2(struct mach_header_64 *mh, const char *name)
         }
     }
 
+    LOG("loaded");
 out_done:
     return addr;
 }
