@@ -41,12 +41,30 @@ ProductName:	Mac OS X
 ProductVersion:	10.12.6
 BuildVersion:	16G29
 
-$ sudo kextload -v ksymresolver.kext
 $ sudo kextload -v -r . ksymresolver_test.kext
-
 $ sudo dmesg | grep ksymresolver
-
- TODO
+ksymresolver: [DBG] vm_kernel_addrperm_ext: 0xed10960ea49abd5f
+ksymresolver: [DBG] vm_kernel_slide:        0x000000000fc00000
+ksymresolver: [DBG] HIB text base:          0xffffff800fd00000
+ksymresolver: [DBG] kernel text base:       0xffffff800fe00000
+ksymresolver: [DBG] magic:                  0xfeedfacf
+ksymresolver: [DBG] cputype:                0x01000007
+ksymresolver: [DBG] cpusubtype:             0x00000003
+ksymresolver: [DBG] filetype:               0x00000002
+ksymresolver: [DBG] ncmds:                  0x00000018
+ksymresolver: [DBG] sizeofcmds:             0x00001300
+ksymresolver: [DBG] flags:                  0x00200001
+ksymresolver: [DBG] reserved:               0000000000
+ksymresolver: loaded  (version: 0000.00.01 build: 0 ts: Jan 14 2019 23:35:10+0800 uuid: 157a70d2-3bf3-3985-a634-1451010eb33e)
+ksymresolver_test: hz addr: 0xffffff801085b5cc
+ksymresolver_test: hz: 100
+ksymresolver_test: tick addr: 0xffffff801085b5d0
+ksymresolver_test: tick: 10000
+ksymresolver_test: boottime_sec addr: 0xffffff8010523cf0
+ksymresolver_test: boottime_sec: 1547477058
+ksymresolver_test: bsd_hostname addr: 0xffffff80105ee930
+ksymresolver_test: hostname: lynnls-Mac.local len: 16
+ksymresolver_test: loaded
 ```
 
 ```
@@ -55,9 +73,7 @@ ProductName:	Mac OS X
 ProductVersion:	10.13.6
 BuildVersion:	17G65
 
-$ sudo kextload -v ksymresolver.kext
 $ sudo kextload -v -r . ksymresolver_test.kext
-
 $ sudo dmesg | grep ksymresolver
 ksymresolver: [DBG] vm_kernel_addrperm_ext: 0xdf8f8245c7d79a83
 ksymresolver: [DBG] vm_kernel_slide:        0x0000000012a00000
@@ -71,7 +87,7 @@ ksymresolver: [DBG] ncmds:                  0x00000017
 ksymresolver: [DBG] sizeofcmds:             0x00001308
 ksymresolver: [DBG] flags:                  0x00200001
 ksymresolver: [DBG] reserved:               0000000000
-ksymresolver: loaded
+ksymresolver: loaded  (version: 0000.00.01 build: 0 ts: Jan 14 2019 23:35:10+0800 uuid: 157a70d2-3bf3-3985-a634-1451010eb33e)
 ksymresolver_test: hz addr: 0xffffff8013a966f8
 ksymresolver_test: hz: 100
 ksymresolver_test: tick addr: 0xffffff8013a966fc
