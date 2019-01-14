@@ -1,34 +1,12 @@
 /*
  * Created 180909 lynnl
  */
+#include <sys/systm.h>
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
-#include <libkern/libkern.h>
-#include <vm/vm_kern.h>
+
 #include "ksymresolver.h"
-
-/* Exported: xnu/osfmk/mach/i386/vm_param.h */
-#define VM_MIN_KERNEL_ADDRESS           ((vm_offset_t) 0xffffff8000000000UL)
-#define VM_MIN_KERNEL_AND_KEXT_ADDRESS  (VM_MIN_KERNEL_ADDRESS - 0x80000000ULL)
-
-#define KERN_HIB_BASE   ((vm_offset_t) 0xffffff8000100000ULL)
-#define KERN_TEXT_BASE  ((vm_offset_t) 0xffffff8000200000ULL)
-
-#ifndef __kext_makefile__
-#define KEXTNAME_S      "ksymresolver"
-#define KEXTVERSION_S   "0000.00.01"
-#define KEXTBUILD_S     "0"
-#define BUNDLEID_S      "cn.junkman.kext." KEXTNAME_S
-#define __TZ__          "+0800"
-#endif
-
-#define LOG(fmt, ...)       printf(KEXTNAME_S ": " fmt "\n", ##__VA_ARGS__)
-#define LOG_ERR(fmt, ...)   LOG("[ERR] " fmt, ##__VA_ARGS__)
-#ifdef DEBUG
-#define LOG_DBG(fmt, ...)   LOG("[DBG] " fmt, ##__VA_ARGS__)
-#else
-#define LOG_DBG(fmt, ...)   (void) (0, ##__VA_ARGS__)
-#endif
+#include "utils.h"
 
 /**
  * Get value of global variable vm_kernel_addrperm_ext(since 10.11)
@@ -130,6 +108,9 @@ static void *resolve_ksymbol2(struct mach_header_64 *mh, const char *name)
     char *str;
     void *addr = NULL;
 
+    kassert_nonnull(mh);
+    kassert_nonnull(name);
+
     if ((mh->magic != MH_MAGIC_64 && mh->magic != MH_CIGAM_64) || mh->filetype != MH_EXECUTE) {
         LOG_ERR("bad mach header  mh: %p mag: %#010x type: %#010x",
                     mh, mh->magic, mh->filetype);
@@ -195,21 +176,31 @@ void *resolve_ksymbol(const char * __nonnull name)
     return resolve_ksymbol2(mh, name);
 }
 
-kern_return_t ksymresolver_start(kmod_info_t *ki __unused, void *d __unused)
+kern_return_t ksymresolver_start(kmod_info_t *ki, void *d __unused)
 {
     vm_offset_t vm_kern_ap_ext;
     vm_offset_t vm_kern_slide;
     vm_address_t hib_base;
     vm_address_t kern_base;
     struct mach_header_64 *mh;
+    uuid_string_t uuid;
+    int e;
 
-    LOG("loaded  (version: %s build: %s ts: %s %s%s uuid: %s)",
-        KEXTVERSION_S, KEXTBUILD_S, __DATE__, __TIME__, __TZ__, "");
+    e = util_vma_uuid(ki->address, uuid);
+    if (e) LOG_ERR("util_vma_uuid() failed  errno: %d", e);
 
     vm_kern_ap_ext = get_vm_kernel_addrperm_ext();
+    if (vm_kern_ap_ext == 0) {
+        LOG_ERR("get_vm_kernel_addrperm_ext() failed");
+        goto out_exit;
+    }
     LOG_DBG("vm_kernel_addrperm_ext: %#018lx\n", vm_kern_ap_ext);
 
     vm_kern_slide = get_vm_kernel_slide();
+    if (vm_kern_slide == 0) {
+        LOG_ERR("get_vm_kernel_slide() failed");
+        goto out_exit;
+    }
     LOG_DBG("vm_kernel_slide:        %#018lx\n", vm_kern_slide);
 
     hib_base = KERN_HIB_BASE + vm_kern_slide;
@@ -228,13 +219,25 @@ kern_return_t ksymresolver_start(kmod_info_t *ki __unused, void *d __unused)
     LOG_DBG("flags:                  %#010x\n", mh->flags);
     LOG_DBG("reserved:               %#010x\n", mh->reserved);
 
+    LOG("loaded  (version: %s build: %s ts: %s %s%s uuid: %s)",
+        KEXTVERSION_S, KEXTBUILD_S, __DATE__, __TIME__, __TZ__, uuid);
+
     return KERN_SUCCESS;
+out_exit:
+    return KERN_FAILURE;
 }
 
-kern_return_t ksymresolver_stop(kmod_info_t *ki __unused, void *d __unused)
+kern_return_t ksymresolver_stop(kmod_info_t *ki, void *d __unused)
 {
+    int e;
+    uuid_string_t uuid;
+
+    e = util_vma_uuid(ki->address, uuid);
+    if (e) LOG_ERR("util_vma_uuid() failed  errno: %d", e);
+
     LOG("unloaded  (version: %s build: %s ts: %s %s%s uuid: %s)",
-        KEXTVERSION_S, KEXTBUILD_S, __DATE__, __TIME__, __TZ__, "");
+        KEXTVERSION_S, KEXTBUILD_S, __DATE__, __TIME__, __TZ__, uuid);
+
     return KERN_SUCCESS;
 }
 
