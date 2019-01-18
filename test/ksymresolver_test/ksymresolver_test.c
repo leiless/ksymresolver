@@ -16,33 +16,43 @@ static int *tick;
 static time_t (*boottime_sec)(void);
 /* Exported: xnu/bsd/sys/systm.h#bsd_hostname */
 static int (*bsd_hostname)(char *, int, int *);
+static boolean_t *doprnt_hide_pointers;
 
 kern_return_t ksymresolver_test_start(kmod_info_t *ki __unused, void *d __unused)
 {
+    doprnt_hide_pointers = resolve_ksymbol("_doprnt_hide_pointers");
+    if (doprnt_hide_pointers != NULL) {
+        LOG("doprnt_hide_pointers: %d", *doprnt_hide_pointers);
+        /*
+         * Set to FALSE causes __doprnt print real value of pointer instead of <ptr>
+         * see: xnu/osfmk/kern/printf.c#__doprnt
+         */
+        *doprnt_hide_pointers = FALSE;
+    }
+    LOG("&doprnt_hide_pointers: %p", doprnt_hide_pointers);
+
     hz = resolve_ksymbol("_hz");
-    LOG("hz addr: %#018lx\n", (vm_address_t) hz);
+    LOG("&hz: %p", hz);
     if (hz) LOG("hz: %d", *hz);
 
     tick = resolve_ksymbol("_tick");
-    LOG("tick addr: %#018lx\n", (vm_address_t) tick);
+    LOG("&tick: %p", tick);
     if (tick) LOG("tick: %d", *tick);
 
     boottime_sec = resolve_ksymbol("_boottime_sec");
-    LOG("boottime_sec addr: %#018lx", (vm_address_t) boottime_sec);
-    if (boottime_sec) {
-        LOG("boottime_sec: %ld", boottime_sec());
-    }
+    LOG("boottime_sec: %p", boottime_sec);
+    if (boottime_sec) LOG("boottime_sec: %ld", boottime_sec());
 
     bsd_hostname = resolve_ksymbol("_bsd_hostname");
-    LOG("bsd_hostname addr: %#018lx\n", (vm_address_t) bsd_hostname);
+    LOG("bsd_hostname: %p", bsd_hostname);
     if (bsd_hostname) {
         char buf[64];
         int outlen;
         int e = bsd_hostname(buf, sizeof(buf), &outlen);
         if (e == 0) {
-            LOG("hostname: %s len: %d\n", buf, outlen);
+            LOG("hostname: %s len: %d", buf, outlen);
         } else {
-            LOG("bsd_hostname() failed  errno: %d\n", e);
+            LOG("bsd_hostname() failed  errno: %d", e);
         }
     }
 
