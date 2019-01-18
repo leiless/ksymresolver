@@ -5,6 +5,7 @@
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
 #include <libkern/version.h>
+#include <vm/vm_kern.h>
 
 #include "ksymresolver.h"
 #include "utils.h"
