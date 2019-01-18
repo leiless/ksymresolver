@@ -22,7 +22,7 @@ kern_return_t ksymresolver_test_start(kmod_info_t *ki __unused, void *d __unused
 {
     doprnt_hide_pointers = resolve_ksymbol("_doprnt_hide_pointers");
     if (doprnt_hide_pointers != NULL) {
-        LOG("doprnt_hide_pointers: %d", *doprnt_hide_pointers);
+        LOG("doprnt_hide_pointers: %d  reset to FALSE", *doprnt_hide_pointers);
         /*
          * Set to FALSE causes __doprnt print real value of pointer instead of <ptr>
          * see: xnu/osfmk/kern/printf.c#__doprnt
