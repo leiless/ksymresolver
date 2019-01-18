@@ -4,6 +4,7 @@
 #include <sys/systm.h>
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
+#include <libkern/version.h>
 
 #include "ksymresolver.h"
 #include "utils.h"
@@ -186,20 +187,25 @@ kern_return_t ksymresolver_start(kmod_info_t *ki, void *d __unused)
     uuid_string_t uuid;
     int e;
 
+    LOG("%s", version);     /* Print darwin kernel version */
+
     e = util_vma_uuid(ki->address, uuid);
-    if (e) LOG_ERR("util_vma_uuid() failed  errno: %d", e);
+    if (e) {
+        LOG_ERR("util_vma_uuid() failed  errno: %d", e);
+        goto out_fail;
+    }
 
     vm_kern_ap_ext = get_vm_kernel_addrperm_ext();
     if (vm_kern_ap_ext == 0) {
         LOG_ERR("get_vm_kernel_addrperm_ext() failed");
-        goto out_exit;
+        goto out_fail;
     }
     LOG_DBG("vm_kernel_addrperm_ext: %#018lx\n", vm_kern_ap_ext);
 
     vm_kern_slide = get_vm_kernel_slide();
     if (vm_kern_slide == 0) {
         LOG_ERR("get_vm_kernel_slide() failed");
-        goto out_exit;
+        goto out_fail;
     }
     LOG_DBG("vm_kernel_slide:        %#018lx\n", vm_kern_slide);
 
@@ -223,7 +229,7 @@ kern_return_t ksymresolver_start(kmod_info_t *ki, void *d __unused)
         KEXTVERSION_S, KEXTBUILD_S, __DATE__, __TIME__, __TZ__, uuid);
 
     return KERN_SUCCESS;
-out_exit:
+out_fail:
     return KERN_FAILURE;
 }
 
