@@ -10,6 +10,10 @@
 #include "ksymresolver.h"
 #include "utils.h"
 
+#ifndef __TS__
+#define __TS__      "????/??/?? ??:??:??+????"
+#endif
+
 /**
  * Get value of global variable vm_kernel_addrperm_ext(since 10.11)
  * @return      0 if failed to get
@@ -226,8 +230,8 @@ kern_return_t ksymresolver_start(kmod_info_t *ki, void *d __unused)
     LOG_DBG("flags:                  %#010x\n", mh->flags);
     LOG_DBG("reserved:               %#010x\n", mh->reserved);
 
-    LOG("loaded  (version: %s build: %s ts: %s %s%s uuid: %s)",
-        KEXTVERSION_S, KEXTBUILD_S, __DATE__, __TIME__, __TZ__, uuid);
+    LOG("loaded  (version: %s build: %s ts: %s uuid: %s)",
+        KEXTVERSION_S, KEXTBUILD_S, __TS__, uuid);
 
     return KERN_SUCCESS;
 out_fail:
@@ -242,8 +246,8 @@ kern_return_t ksymresolver_stop(kmod_info_t *ki, void *d __unused)
     e = util_vma_uuid(ki->address, uuid);
     if (e) LOG_ERR("util_vma_uuid() failed  errno: %d", e);
 
-    LOG("unloaded  (version: %s build: %s ts: %s %s%s uuid: %s)",
-        KEXTVERSION_S, KEXTBUILD_S, __DATE__, __TIME__, __TZ__, uuid);
+    LOG("unloaded  (version: %s build: %s ts: %s uuid: %s)",
+        KEXTVERSION_S, KEXTBUILD_S, __TS__, uuid);
 
     return KERN_SUCCESS;
 }
