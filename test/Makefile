@@ -57,7 +57,6 @@ CPPFLAGS+=	-DKERNEL \
 		-DDRIVER_PRIVATE \
 		-DAPPLE \
 		-DNeXT \
-		$(SDKFLAGS) \
 		-I$(SDKROOT)/System/Library/Frameworks/Kernel.framework/Headers \
 		-I$(SDKROOT)/System/Library/Frameworks/Kernel.framework/PrivateHeaders \
 		-D__kext_makefile__
@@ -70,8 +69,10 @@ CPPFLAGS+=	-DKEXTNAME_S=\"$(KEXTNAME)\"		\
 		-DKEXTVERSION_S=\"$(KEXTVERSION)\"	\
 		-DKEXTBUILD_S=\"$(KEXTBUILD)\"		\
 		-DBUNDLEID_S=\"$(BUNDLEID)\"		\
-		-DBUNDLEID=$(BUNDLEID)			\
-		-D__TZ__=\"$(shell date +%z)\"
+		-DBUNDLEID=$(BUNDLEID)
+
+TIME_STAMP:=	$(shell date +'%Y/%m/%d\ %H:%M:%S%z')
+CPPFLAGS+=	-D__TS__=\"$(TIME_STAMP)\"
 
 #
 # C compiler flags
@@ -81,7 +82,8 @@ CFLAGS+=	-mmacosx-version-min=$(MACOSX_VERSION_MIN)
 else
 CFLAGS+=	-mmacosx-version-min=10.4
 endif
-CFLAGS+=	-x c \
+CFLAGS+=	$(SDKFLAGS) \
+		-x c \
 		-arch $(ARCH) \
 		-std=c99 \
 		-nostdinc \
@@ -98,8 +100,9 @@ LDFLAGS+=	-mmacosx-version-min=$(MACOSX_VERSION_MIN)
 else
 LDFLAGS+=	-mmacosx-version-min=10.4
 endif
-LDFLAGS+=	-arch $(ARCH)
-LDFLAGS+=	-nostdlib \
+LDFLAGS+=	$(SDKFLAGS) \
+		-arch $(ARCH) \
+		-nostdlib \
 		-Xlinker -kext \
 		-Xlinker -object_path_lto \
 		-Xlinker -export_dynamic
@@ -110,7 +113,7 @@ LIBS+=		-lkmod
 LIBS+=		-lcc_kext
 
 # kextlibs flags
-KLFLAGS+=	-xml -c -unsupported -undef-symbols -e -r ..
+KLFLAGS+=	-xml -c -unsupported -undef-symbols
 
 # source, header, object and make files
 SRCS:=		$(wildcard $(KEXTNAME)/*.c)
@@ -129,7 +132,7 @@ all: debug
 $(OBJS): $(MKFS)
 
 $(KEXTMACHO): $(OBJS)
-	$(CC) $(SDKFLAGS) $(LDFLAGS) $(LIBS) -o $@ $^
+	$(CC) $(LDFLAGS) $(LIBS) -o $@ $^
 	otool -h $@
 	otool -l $@ | grep uuid
 
@@ -152,6 +155,10 @@ $(KEXTBUNDLE): $(KEXTMACHO) Info.plist~
 	sed 's/__KEXTLIBS__//g' Info.plist~ > $@/Contents/Info.plist
 	awk '/__KEXTLIBS__/{system("kextlibs $(KLFLAGS) $@");next};1' Info.plist~ > $@/Contents/Info.plist~
 	mv $@/Contents/Info.plist~ $@/Contents/Info.plist
+
+ifdef COMPATIBLE_VERSION
+	/usr/libexec/PlistBuddy -c 'Add :OSBundleCompatibleVersion string "$(COMPATIBLE_VERSION)"' $@/Contents/Info.plist
+endif
 
 ifdef COPYRIGHT
 	/usr/libexec/PlistBuddy -c 'Add :NSHumanReadableCopyright string "$(COPYRIGHT)"' $@/Contents/Info.plist
