@@ -113,7 +113,7 @@ LIBS+=		-lkmod
 LIBS+=		-lcc_kext
 
 # kextlibs flags
-KLFLAGS+=	-xml -c -unsupported -undef-symbols
+KLFLAGS+=	-xml -c -unsupported -undef-symbols -e -r ..
 
 # source, header, object and make files
 SRCS:=		$(wildcard $(KEXTNAME)/*.c)
