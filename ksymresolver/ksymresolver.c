@@ -205,30 +205,30 @@ kern_return_t ksymresolver_start(kmod_info_t *ki, void *d __unused)
         LOG_ERR("get_vm_kernel_addrperm_ext() failed");
         goto out_fail;
     }
-    LOG_DBG("vm_kernel_addrperm_ext: %#018lx\n", vm_kern_ap_ext);
+    LOG_DBG("vm_kernel_addrperm_ext: %#018lx", vm_kern_ap_ext);
 
     vm_kern_slide = get_vm_kernel_slide();
     if (vm_kern_slide == 0) {
         LOG_ERR("get_vm_kernel_slide() failed");
         goto out_fail;
     }
-    LOG_DBG("vm_kernel_slide:        %#018lx\n", vm_kern_slide);
+    LOG_DBG("vm_kernel_slide:        %#018lx", vm_kern_slide);
 
     hib_base = KERN_HIB_BASE + vm_kern_slide;
     kern_base = KERN_TEXT_BASE + vm_kern_slide;
 
-    LOG_DBG("HIB text base:          %#018lx\n", hib_base);
-    LOG_DBG("kernel text base:       %#018lx\n", kern_base);
+    LOG_DBG("HIB text base:          %#018lx", hib_base);
+    LOG_DBG("kernel text base:       %#018lx", kern_base);
 
     mh = (struct mach_header_64 *) kern_base;
-    LOG_DBG("magic:                  %#010x\n", mh->magic);
-    LOG_DBG("cputype:                %#010x\n", mh->cputype);
-    LOG_DBG("cpusubtype:             %#010x\n", mh->cpusubtype);
-    LOG_DBG("filetype:               %#010x\n", mh->filetype);
-    LOG_DBG("ncmds:                  %#010x\n", mh->ncmds);
-    LOG_DBG("sizeofcmds:             %#010x\n", mh->sizeofcmds);
-    LOG_DBG("flags:                  %#010x\n", mh->flags);
-    LOG_DBG("reserved:               %#010x\n", mh->reserved);
+    LOG_DBG("magic:                  %#010x", mh->magic);
+    LOG_DBG("cputype:                %#010x", mh->cputype);
+    LOG_DBG("cpusubtype:             %#010x", mh->cpusubtype);
+    LOG_DBG("filetype:               %#010x", mh->filetype);
+    LOG_DBG("ncmds:                  %#010x", mh->ncmds);
+    LOG_DBG("sizeofcmds:             %#010x", mh->sizeofcmds);
+    LOG_DBG("flags:                  %#010x", mh->flags);
+    LOG_DBG("reserved:               %#010x", mh->reserved);
 
     LOG("loaded  (version: %s build: %s ts: %s uuid: %s)",
         KEXTVERSION_S, KEXTBUILD_S, __TS__, uuid);
