@@ -87,3 +87,8 @@ After resolve and reset `doprnt_hide_pointers`, further pointer formats can be p
 
 ### *References*
 [Resolving kernel symbols](http://ho.ax/posts/2012/02/resolving-kernel-symbols/)
+
+[Resolving Kernel Symbols in a Post-ASLR macOS World](https://www.zdziarski.com/blog/?p=6901)
+
+[Crafting macOS Root Kits](https://www.zdziarski.com/blog/wp-content/uploads/2017/02/Crafting-macOS-Root-Kits.pdf)
+
