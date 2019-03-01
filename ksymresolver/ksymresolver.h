@@ -25,10 +25,10 @@
 
 /**
  * Resolve a kernel symbol address
- * @param name          symbol name(must begin with _)
+ * @param name          symbol name(should begin with _)
  * @return              NULL if not found
  */
-void *resolve_ksymbol(const char *);
+void * __nullable resolve_ksymbol(const char * __nonnull);
 
 #endif  /* KSYMRESOLVER_H */
 

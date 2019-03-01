@@ -168,18 +168,18 @@ out_done:
 
 /**
  * Resolve a kernel symbol address
- * @param name          symbol name(must begin with _)
+ * @param name          symbol name(should begin with _)
  * @return              NULL if not found
  */
-void *resolve_ksymbol(const char * __nonnull name)
+void * __nullable resolve_ksymbol(const char * __nonnull name)
 {
-    static struct mach_header_64 *mh = NULL;
+    static volatile struct mach_header_64 *mh = NULL;
 
     if (mh == NULL) {
         mh = (struct mach_header_64 *) (KERN_TEXT_BASE + get_vm_kernel_slide());
     }
 
-    return resolve_ksymbol2(mh, name);
+    return resolve_ksymbol2((struct mach_header_64 *) mh, name);
 }
 
 kern_return_t ksymresolver_start(kmod_info_t *ki, void *d __unused)

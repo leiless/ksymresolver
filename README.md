@@ -11,18 +11,20 @@ Also it can be used as a sole kext dependency for resolving dependencies.
 ```c
 /**
  * Resolve a kernel symbol address
- * @param name          symbol name(must begin with _)
+ * @param name          symbol name(should begin with _)
  * @return              NULL if not found
  */
-void *resolve_ksymbol(const char * __nonnull name);
+void * __nullable resolve_ksymbol(const char * __nonnull name);
 ```
 
 Tips: you should resolve all kernel symbols you need at kext load stage, and fail load if any symbol cannot be resolved.
 
 #### Compile
 
-```
-$ MACOSX_VERSION_MIN=10.11 make
+```shell
+# Use `release' target for a release build
+$ make
+$ make -C test
 ```
 
 #### Load & test
@@ -33,7 +35,7 @@ $ sudo cp -r test/ksymresolver_test.kext /tmp
 
 $ sudo kextload -v /tmp/ksymresolver.kext
 
-# Actually you don't have to load ksymresolver.kext first  since dependencies will load automatically
+# Actually you don't have to load ksymresolver.kext first  since dependencies will load it automatically
 $ sudo kextload -v -r . /tmp/ksymresolver_test.kext
 Password:
 Requesting load of /private/tmp/ksymresolver_test.kext.
@@ -42,7 +44,7 @@ Requesting load of /private/tmp/ksymresolver_test.kext.
 
 #### Sample output
 
-Tested on [10.11, 10.14]
+Tested on [10.11, 10.14(18D109)]
 
 ```
 $ sw_vers
